@@ -1,4 +1,7 @@
 import React, {useEffect, useState} from 'react';
+import TextField from '@material-ui/core/TextField';
+
+
 import './App.css';
 import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
@@ -29,6 +32,10 @@ const useStyles = makeStyles(theme => ({
         marginBottom: '10px',
         borderBottom: '1px solid #fff',
         paddingBottom: "10px"
+    },
+    search: {
+        width: '100%',
+        margin: `10px 0`
     }
 }));
 
@@ -36,7 +43,8 @@ function App() {
     const classes = useStyles();
 
     const [latest, setLatest] = useState([]);
-    const [results, setResults] = useState([])
+    const [results, setResults] = useState([]);
+    const [searchCountries, setSearchCountries] = useState('');
 
     useEffect(() => {
         axios
@@ -56,8 +64,13 @@ function App() {
     const date = new Date(parseInt(latest.updated));
     const lastUpdated = date.toString();
 
-    const countries = results.map((data, index) => {
+    const filterCountries = results.filter(item => {
+        return searchCountries !== "" ? item.country.includes(searchCountries) : item;
+    })
+
+    const countries = filterCountries.map((data, index) => {
         return(
+
             <Grid item xs={2} key={index}>
                 <Paper className={classes.paper} style={{backgroundColor: " grey"}}>
                     <CardMedia
@@ -69,15 +82,31 @@ function App() {
                         {data.country}
                     </div>
                     <div className={classes.number}>
-                        {data.cases}
+                        cases: {data.cases}
                     </div>
-                    {/*<div className="update-time">*/}
-                    {/*    last update {lastUpdated}*/}
-                    {/*</div>*/}
+                    <div className={classes.number}>
+                        today cases: {data.todayCases}
+                    </div>
+                    <div className={classes.number}>
+                        deaths: {data.deaths}
+                    </div>
+                    <div className={classes.number}>
+                        today deaths: {data.todayDeaths}
+                    </div>
+                    <div className={classes.number}>
+                        recovered: {data.recovered}
+                    </div>
+                    <div className={classes.number}>
+                        active: {data.active}
+                    </div>
+                    <div className={classes.number}>
+                        critical: {data.critical}
+                    </div>
                 </Paper>
             </Grid>
         )
     })
+
 
   return (
     <div className="App">
@@ -125,8 +154,20 @@ function App() {
                 </Grid>
             </Grid>
 
+            <form className={classes.root} noValidate autoComplete="off">
+                <TextField
+                    className={classes.search}
+                    id="filled-search"
+                    label="Search country"
+                    type="search"
+                    variant="filled"
+                    onChange={e => setSearchCountries(e.target.value)}
+                />
+            </form>
+
             <Grid container spacing={3}>
                 {countries}
+
             </Grid>
 
         </Container>
